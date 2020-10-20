@@ -1,0 +1,35 @@
+---
+- name: ansible test
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  become: True
+  tasks:
+    - name: ping
+      ping:
+    - name: vars
+      include_vars:
+         file: conf_vars.yml 
+
+- name: bastion prep
+  hosts: localhost
+  connection: local
+  become: true
+  roles:
+     - role: bast-prep
+
+- name: Java
+  hosts: localhost
+  connection: local
+  become: true
+  roles:
+    - role: java
+
+- name: TC server
+  hosts: localhost
+  connection: local
+  become: true
+  roles:
+    - role: tc_server 
+
+          

@@ -1,0 +1,26 @@
+---
+- name: trivial task - gather_facts for all hosts
+  hosts: all
+  gather_facts: True
+  become: True
+  tasks:
+    - name: ping
+      ping:
+
+- name: prep
+  hosts: all
+  become: true
+  roles:
+     - role: prepare
+
+- name: master
+  hosts: masters
+  become: true
+  roles:
+     - role: master
+          
+- name: node
+  hosts: workers
+  become: true
+  roles:
+     - role: node

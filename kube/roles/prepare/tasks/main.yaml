@@ -1,0 +1,81 @@
+- name: Install node
+  yum:
+    name: "{{ util }}"
+  vars:
+    util:
+    - mc
+    - wget
+    - unzip
+    - git
+    - yum-utils
+    state: installed
+
+- name: Upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: Install Docker
+  shell:  "amazon-linux-extras install docker -y"
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+#- name: ensure net.bridge.bridge-nf-call-ip6tables is set to 1
+#  sysctl:
+#    name: net.bridge.bridge-nf-call-ip6tables
+#    value: 1
+#    state: present
+
+- name: ensure net.bridge.bridge-nf-call-iptables is set to 1
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: 1
+    state: present
+
+- name: add Kubernetes' YUM repository
+  yum_repository:
+   name: Kubernetes
+   description: Kubernetes YUM repository
+   baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+   gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+   gpgcheck: yes
+
+- name: install kubelet
+  yum:
+     name: kubelet
+     state: present
+     update_cache: true
+
+- name: install kubeadm
+  yum:
+     name: kubeadm
+     state: present
+
+- name: start kubelet
+  service:
+    name: kubelet
+    enabled: yes
+    state: started
+
+- name: install kubectl
+  yum:
+     name: kubectl
+     state: present
+     allow_downgrade: yes
+
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+    - none
+
+- name: Disable swap
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0

@@ -1,0 +1,30 @@
+- name: Initialize the Kubernetes cluster using kubeadm
+  command: >
+     kubeadm init 
+     --apiserver-advertise-address="192.168.56.141" 
+     --apiserver-cert-extra-sans="192.168.56.141"  
+     --node-name k8s-master 
+     --pod-network-cidr=192.168.0.0/16
+
+- name: Copy insecure_private_key
+  copy:
+      src: /etc/kubernetes/admin.conf
+      dest: "$HOME/.kube/config"
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: '0600'
+                      
+- name: Install weave pod network
+  shell:  "kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  register: resuly
+  ignore_errors: True
+- debug: var=resuly
+- debug: var=resuly.stdout
+                    
+- name: Generate join command
+  command: kubeadm token create --print-join-command
+  register: join_command
+
+- name: Copy join command to local file
+  local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+

@@ -1,0 +1,25 @@
+- name: Install node
+  yum:
+    name: "{{ util }}"
+  vars:
+    util:
+    - mc
+    state: installed
+
+- name: add Terraform repository
+  shell:  "yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo"
+
+- name: install terraform
+  yum:
+     name: terraform
+     state: present
+
+#- name: Set AWS access
+#  command: "aws configure set aws_access_key_id {{ aws_access }}"
+
+#- name: Set AWS secret
+#  command: "aws configure set aws_secret_access_key {{ aws_secret }}"
+
+#- name: Set default AWS region
+#  command: "aws configure set default.region {{ region }}"
+            
